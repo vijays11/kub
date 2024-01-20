@@ -1,0 +1,36 @@
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   name: app-deploy # name of deployment
+   namespace: default
+ spec:
+   replicas: 1 # specify number of replicas
+   selector:
+     matchLabels:
+       app: app # this selector label should be the same accross the         deployment and service files.
+   template:
+     metadata:
+       labels:
+         app: app  # same selector label as deployment
+     spec: # container specifications
+       containers:
+         - name: students-database-dotnet-docker-app 
+           image: students-database-dotnet-docker-app:latest
+           imagePullPolicy: IfNotPresent 
+           ports:
+             - containerPort: 5000
+
+ ---   # separates deployment and service
+ apiVersion: v1
+ kind: Service
+ metadata:
+   name: app-service # name of service
+ spec:
+   type: NodePort # since this service has to be accessible externally
+   selector:
+     app: app # same selector label as deployment
+   ports:
+     - nodePort: 30001 # any port in the range 30000-32768
+       port: 5000 #container port
+       targetPort: 5000 
+ # A Service can map any incoming port to a targetPort. By default and for convenience, the targetPort is set to the same value as the port field.
